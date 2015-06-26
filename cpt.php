@@ -8,27 +8,23 @@
 * @license GNU Lesser General Public License
 */
 
+include_once('inflector.php');
+
 class CPT
 {
-	private $type;
+	public $type;
  	private $plural;
 	private $title;
 	private $plural_title;
 
-	private $tax;
- 	private $tax_plural;
-	private $tax_title;
-	private $tax_plural_title;
-
 	//Constructor
  
-	function __construct($par_name, $par_plural, $par_title, $par_plural_title){
+	function __construct($par_name){
 		
 		$this->type = $par_name;
-		$this->plural = $par_plural;
-		$this->title = $par_title;
-		$this->plural_title = $par_plural_title;
-
+		$this->plural = Inflector::pluralize($par_name);
+		$this->title = Inflector::titleize($par_name);
+		$this->plural_title = Inflector::titleize($this->plural);
 	}
 
 	//Functions
@@ -84,100 +80,5 @@ class CPT
 	    register_post_type( $name , $args );
 	}
 
-	//Custom taxonomies register - hierarchical/not hierarchical
-
-	public function add_taxonomy($tax_name, $tax_plural, $tax_title, $tax_plural_title, $type){	
-
-		$this->tax = $tax_name;
-		$this->tax_plural = $tax_plural;
-		$this->tax_title = $tax_title;
-		$this->tax_plural_title = $tax_plural_title;
-
-		if ($type) {
-			// hierarchical
-			add_action( 'init', 'custom_category_register');
-			$this->custom_category_register();
-			# code...
-		}
-		else {
-			// not hierarchical
-			add_action( 'init', 'custom_tag_register');
-			$this->custom_tag_register();
-		}
-	}
-	
-
-	function custom_category_register() {
-
-		$name = $this->tax;
-		$plural = $this->tax_plural;
-		$title = $this->tax_title;
-		$plural_title = $this->tax_plural_title;
-
-		$labels = array(
-			'name'              => _x( $plural_title, 'taxonomy general name' ),
-			'singular_name'     => _x( $title, 'taxonomy singular name' ),
-			'search_items'      => __( 'Search '.$plural_title ),
-			'all_items'         => __( 'All '.$plural_title ),
-			'parent_item'       => __( 'Parent '.$title ),
-			'parent_item_colon' => __( 'Parent '.$title.':' ),
-			'edit_item'         => __( 'Edit '.$title ),
-			'update_item'       => __( 'Update '.$title ),
-			'add_new_item'      => __( 'Add New '.$title ),
-			'new_item_name'     => __( 'New '.$title.' Name' ),
-			'menu_name'         => __( $title ),
-		);
-
-		$args = array(
-			'hierarchical'      => true,
-			'labels'            => $labels,
-			'show_ui'           => true,
-			'show_admin_column' => true,
-			'query_var'         => true,
-			'rewrite'           => array( 'slug' => $name ),
-		);
-
-		register_taxonomy( $name, array( $this->type ), $args );
-
-	}
-
-	function custom_tag_register() {
-
-		$name = $this->tax;
-		$plural = $this->tax_plural;
-		$title = $this->tax_title;
-		$plural_title = $this->tax_plural_title;
-
-		$labels = array(
-			'name'                       => _x( $plural_title, 'taxonomy general name' ),
-			'singular_name'              => _x( $name, 'taxonomy singular name' ),
-			'search_items'               => __( 'Search '.$plural_title ),
-			'popular_items'              => __( 'Popular '.$plural_title ),
-			'all_items'                  => __( 'All '.$plural_title ),
-			'parent_item'                => null,
-			'parent_item_colon'          => null,
-			'edit_item'                  => __( 'Edit '.$name),
-			'update_item'                => __( 'Update '.$name),
-			'add_new_item'               => __( 'Add New '.$name),
-			'new_item_name'              => __( 'New '.$name.' Name' ),
-			'separate_items_with_commas' => __( 'Separate '.$plural.' with commas' ),
-			'add_or_remove_items'        => __( 'Add or remove '.$plural ),
-			'choose_from_most_used'      => __( 'Choose from the most used '.$plural ),
-			'not_found'                  => __( 'No '.$plural.' found.' ),
-			'menu_name'                  => __( $plural_title ),
-		);
-
-		$args = array(
-			'hierarchical'          => false,
-			'labels'                => $labels,
-			'show_ui'               => true,
-			'show_admin_column'     => true,
-			'update_count_callback' => '_update_post_term_count',
-			'query_var'             => true,
-			'rewrite'               => array( 'slug' => $name ),
-		);
-
-		register_taxonomy( $name, array( $this->type ), $args );
-	}
 
 }
