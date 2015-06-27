@@ -80,5 +80,13 @@ class CPT
 	    register_post_type( $name , $args );
 	}
 
+	// Unregister post type
+	
+	public function unregister_post_type(){
+	
+		global $wp_post_types;
+		
+		if ( isset( $wp_post_types[ $this->type ] ) ) unset( $wp_post_types[ $this->type ] );
+	}
 
 }
