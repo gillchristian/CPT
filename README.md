@@ -29,7 +29,8 @@ $book->cpt_args_options(array(
     ));
 ```
 for [more information][2] about  the custom post type register options go to the [WordPress Codex][3].
-[here][4] some more icons, from the WordPress icons font, you can use to customize the menu icon of the custom post type.
+
+[here][4] are some more icons, from the WordPress icons font, you can use to customize the menu icon of the custom post type.
 ## <i class="icon-list"></i> to do
 - Taxonomies creation.
 
