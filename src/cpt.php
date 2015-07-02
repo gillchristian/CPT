@@ -17,6 +17,9 @@ class CPT
 	private $title;
 	private $plural_title;
 
+	private $args = [];
+	private $labels = [];
+
 	//Constructor
  
 	function __construct($par_name){
@@ -62,6 +65,10 @@ class CPT
 			'not_found_in_trash' => __( "No $plural found in Trash.")
 		);
 
+	    foreach ($this->labels as $key => $value) {
+	    	$labes[$key] = $value;
+	    }
+
 		$args = array(
 			'labels'             => $labels,
 			'public'             => true,
@@ -77,6 +84,10 @@ class CPT
 			'supports'           => array( 'title', 'editor', 'author', 'thumbnail')
 		);
 
+		foreach ($this->args as $key => $value) {
+	    	$args[$key] = $value;
+	    }
+
 	    register_post_type( $name , $args );
 	}
 
@@ -87,6 +98,22 @@ class CPT
 		global $wp_post_types;
 		
 		if ( isset( $wp_post_types[ $this->type ] ) ) unset( $wp_post_types[ $this->type ] );
+	}
+
+	// Changes the $args options of the cpt
+	public function cpt_args_options ($options) {
+		
+		foreach ($options as $key => $value) {
+			$this->args[$key] = $value;
+		}
+	}
+
+	// Changes the $labels options of the cpt
+	public function cpt_labels_options ($options) {
+		
+		foreach ($options as $key => $value) {
+			$this->labels[$key] = $value;
+		}
 	}
 
 }
