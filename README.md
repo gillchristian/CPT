@@ -46,7 +46,7 @@ to add a taxonomy use the ```add_taxonomy($par_name, $hierarchical)``` function.
 
 ```$hierarchical```: boolean, if true the taxonomy is hierarchical like a category, if false the taxonomy is not hierarchical like a tag. default: ```true```
 ####adding more options
-```taxonomy_args_options($options)``` and ```taxonomy_labels_options($options)``` work the same as the [custom post type options](####adding more options).
+```taxonomy_args_options($options)``` and ```taxonomy_labels_options($options)``` work the same as the custom post type options.
 
 you can find more informaton about registering taxonomies [here][5].
 
