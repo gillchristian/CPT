@@ -10,15 +10,27 @@
 
 include_once('inflector.php');
 
-class CPT
-{
+class CPT {
+
+	// cpt properties
 	public $type;
  	private $plural;
 	private $title;
 	private $plural_title;
 
+	// arrays properties for custom post type options
 	private $args = [];
 	private $labels = [];
+
+	// taxonomies properties
+	private $tax_name;
+	private $tax_plural;
+	private $tax_title;
+	private $tax_plural_title;
+
+	// arrays properties for taxonomies options
+	private $tax_args = [];
+	private $tax_labels = [];
 
 	//Constructor
  
@@ -68,6 +80,7 @@ class CPT
 	    foreach ($this->labels as $key => $value) {
 	    	$labes[$key] = $value;
 	    }
+	    $this->labels = [];
 
 		$args = array(
 			'labels'             => $labels,
@@ -87,6 +100,7 @@ class CPT
 		foreach ($this->args as $key => $value) {
 	    	$args[$key] = $value;
 	    }
+	    $this->args = [];
 
 	    register_post_type( $name , $args );
 	}
@@ -103,6 +117,7 @@ class CPT
 	// Changes the $args options of the cpt
 	public function cpt_args_options ($options) {
 		
+		$args = [];
 		foreach ($options as $key => $value) {
 			$this->args[$key] = $value;
 		}
@@ -111,8 +126,130 @@ class CPT
 	// Changes the $labels options of the cpt
 	public function cpt_labels_options ($options) {
 		
+		$labels = [];
 		foreach ($options as $key => $value) {
 			$this->labels[$key] = $value;
+		}
+	}
+
+	// Taxonomy register
+	
+	public function add_taxonomy($par_name, $hierarchical = true){
+
+		$this->tax_name = $par_name;
+		$this->tax_plural = Inflector::pluralize($par_name);
+		$this->tax_title = Inflector::titleize($par_name);
+		$this->tax_plural_title = Inflector::titleize($this->tax_plural);
+		$this->tax_hierarchical = $hierarchical;
+
+		add_action('init', 'taxonomy_register'); 
+		$this->taxonomy_register();
+		
+	}
+
+	private function taxonomy_register() {
+
+	    $name = $this->tax_name;
+	    $plural = $this->tax_plural;
+	    $title = $this->tax_title;
+	    $plural_title = $this->tax_plural_title;
+	    $post_type = $this->type;
+
+	    if ( $this->tax_hierarchical ) {
+			    
+		    $labels = array(
+		        'name'              => _x( $plural_title, 'taxonomy general name' ),
+		        'singular_name'     => _x( $title, 'taxonomy singular name' ),
+		        'search_items'      => __( 'Search '.$plural_title ),
+		        'all_items'         => __( 'All '.$plural_title ),
+		        'parent_item'       => __( 'Parent '.$title ),
+		        'parent_item_colon' => __( 'Parent '$title.':' ),
+		        'edit_item'         => __( 'Edit '.$title ),
+		        'update_item'       => __( 'Update '.$title ),
+		        'add_new_item'      => __( 'Add new '.$title ),
+		        'new_item_name'     => __( 'New '.$title.' name'),
+		        'menu_name'         => __( $title ),
+		    );
+
+		    foreach ($this->tax_labels as $key => $value) {
+		    	$labes[$key] = $value;
+		    }
+		    $this->tax_labels = [];
+
+		    $args = array(
+		        'hierarchical'      => true,
+		        'labels'            => $labels,
+		        'show_ui'           => true,
+		        'show_admin_column' => true,
+		        'query_var'         => true,
+		        'rewrite'           => array( 'slug' => $name ),
+		    );
+
+		    foreach ($this->tax_args as $key => $value) {
+		    	$args[$key] = $value;
+		    }
+		    $this->tax_args = [];
+	    } 
+	    else {
+	    		
+			$labels = array(
+				'name'                       => _x( $plural_title, 'taxonomy general name' ),
+				'singular_name'              => _x( $name, 'taxonomy singular name' ),
+				'search_items'               => __( 'Search '.$plural_title ),
+				'popular_items'              => __( 'Popular '.$plural_title ),
+				'all_items'                  => __( 'All '.$plural_title ),
+				'parent_item'                => null,
+				'parent_item_colon'          => null,
+				'edit_item'                  => __( 'Edit '.$name),
+				'update_item'                => __( 'Update '.$name),
+				'add_new_item'               => __( 'Add new '.$name),
+				'new_item_name'              => __( 'New '.$name.' name'),
+				'separate_items_with_commas' => __( 'Separate '.$plural.' with commas' ),
+				'add_or_remove_items'        => __( 'Add or remove '.$plural ),
+				'choose_from_most_used'      => __( 'Choose from the most used '.$plural),
+				'not_found'                  => __( 'No '.$plural.' found' ),
+				'menu_name'                  => __( $plural_title )
+			);
+
+			foreach ($this->tax_labels as $key => $value) {
+		    	$labes[$key] = $value;
+		    }
+		    $this->tax_labels = [];
+
+			$args = array(
+				'hierarchical'          => false,
+				'labels'                => $labels,
+				'show_ui'               => true,
+				'show_admin_column'     => true,
+				'update_count_callback' => '_update_post_term_count',
+				'query_var'             => true,
+				'rewrite'               => array( 'slug' => $name ),
+			);
+			
+			foreach ($this->tax_args as $key => $value) {
+		    	$args[$key] = $value;
+		    }
+		    $this->tax_args = [];
+	    }
+
+	    register_taxonomy( $name, array($post_type), $args );
+	}
+
+	// Changes the $args options of the taxonomy
+	public function taxonomy_args_options ($options) {
+		
+		$this->tax_args = [];
+		foreach ($options as $key => $value) {
+			$this->tax_args[$key] = $value;
+		}
+	}
+
+	// Changes the $labels options of taxonomy
+	public function taxonomy_labels_options ($options) {
+		
+		$this->tax_labels = [];
+		foreach ($options as $key => $value) {
+			$this->tax_labels[$key] = $value;
 		}
 	}
 
