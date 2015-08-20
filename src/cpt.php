@@ -60,7 +60,7 @@ class CPT {
 		$title = $this->title;
 		$plural_title = $this->plural_title;
 
-	    $labels = array(
+	    $labels_aux = array(
 			'name'               => _x( $plural_title, 'post type general name'),
 			'singular_name'      => _x( $title, 'post type singular name'),
 			'menu_name'          => _x( $plural_title, 'admin menu'),
@@ -77,12 +77,10 @@ class CPT {
 			'not_found_in_trash' => __( "No $plural found in Trash.")
 		);
 
-	    foreach ($this->labels as $key => $value) {
-	    	$labes[$key] = $value;
-	    }
+	    $labels = array_merge($labels_aux, $this->labels);
 	    $this->labels = [];
 
-		$args = array(
+		$args_aux = array(
 			'labels'             => $labels,
 			'public'             => true,
 			'publicly_queryable' => true,
@@ -97,9 +95,7 @@ class CPT {
 			'supports'           => array( 'title', 'editor', 'author', 'thumbnail')
 		);
 
-		foreach ($this->args as $key => $value) {
-	    	$args[$key] = $value;
-	    }
+	    $args = array_merge($args_aux, $this->args);
 	    $this->args = [];
 
 	    register_post_type( $name , $args );
@@ -117,19 +113,15 @@ class CPT {
 	// Changes the $args options of the cpt
 	public function cpt_args_options ($options) {
 		
-		$args = [];
-		foreach ($options as $key => $value) {
-			$this->args[$key] = $value;
-		}
+		$this->args = [];
+	    $this->args = array_merge($options);
 	}
 
 	// Changes the $labels options of the cpt
 	public function cpt_labels_options ($options) {
 		
-		$labels = [];
-		foreach ($options as $key => $value) {
-			$this->labels[$key] = $value;
-		}
+		$this->labels = [];
+	    $this->labels = array_merge($options);
 	}
 
 	// Taxonomy register
@@ -157,13 +149,13 @@ class CPT {
 
 	    if ( $this->tax_hierarchical ) {
 			    
-		    $labels = array(
+		    $labels_aux = array(
 		        'name'              => _x( $plural_title, 'taxonomy general name' ),
 		        'singular_name'     => _x( $title, 'taxonomy singular name' ),
 		        'search_items'      => __( 'Search '.$plural_title ),
 		        'all_items'         => __( 'All '.$plural_title ),
 		        'parent_item'       => __( 'Parent '.$title ),
-		        'parent_item_colon' => __( 'Parent '$title.':' ),
+		        'parent_item_colon' => __( 'Parent '.$title.':' ),
 		        'edit_item'         => __( 'Edit '.$title ),
 		        'update_item'       => __( 'Update '.$title ),
 		        'add_new_item'      => __( 'Add new '.$title ),
@@ -171,12 +163,10 @@ class CPT {
 		        'menu_name'         => __( $title ),
 		    );
 
-		    foreach ($this->tax_labels as $key => $value) {
-		    	$labes[$key] = $value;
-		    }
+	    	$labels = array_merge($labels_aux, $this->tax_labels);
 		    $this->tax_labels = [];
 
-		    $args = array(
+		    $args_aux = array(
 		        'hierarchical'      => true,
 		        'labels'            => $labels,
 		        'show_ui'           => true,
@@ -185,14 +175,12 @@ class CPT {
 		        'rewrite'           => array( 'slug' => $name ),
 		    );
 
-		    foreach ($this->tax_args as $key => $value) {
-		    	$args[$key] = $value;
-		    }
+	    	$args = array_merge($args_aux, $this->tax_args);
 		    $this->tax_args = [];
 	    } 
 	    else {
 	    		
-			$labels = array(
+			$labels_aux = array(
 				'name'                       => _x( $plural_title, 'taxonomy general name' ),
 				'singular_name'              => _x( $name, 'taxonomy singular name' ),
 				'search_items'               => __( 'Search '.$plural_title ),
@@ -211,12 +199,10 @@ class CPT {
 				'menu_name'                  => __( $plural_title )
 			);
 
-			foreach ($this->tax_labels as $key => $value) {
-		    	$labes[$key] = $value;
-		    }
+	    	$labels = array_merge($labels_aux, $this->tax_labels);
 		    $this->tax_labels = [];
 
-			$args = array(
+			$args_aux = array(
 				'hierarchical'          => false,
 				'labels'                => $labels,
 				'show_ui'               => true,
@@ -226,9 +212,7 @@ class CPT {
 				'rewrite'               => array( 'slug' => $name ),
 			);
 			
-			foreach ($this->tax_args as $key => $value) {
-		    	$args[$key] = $value;
-		    }
+	    	$args = array_merge($args_aux, $this->tax_args);
 		    $this->tax_args = [];
 	    }
 
@@ -239,18 +223,14 @@ class CPT {
 	public function taxonomy_args_options ($options) {
 		
 		$this->tax_args = [];
-		foreach ($options as $key => $value) {
-			$this->tax_args[$key] = $value;
-		}
+    	$this->tax_args = array_merge($options);
 	}
 
 	// Changes the $labels options of taxonomy
 	public function taxonomy_labels_options ($options) {
 		
 		$this->tax_labels = [];
-		foreach ($options as $key => $value) {
-			$this->tax_labels[$key] = $value;
-		}
+    	$this->tax_labels = array_merge($options);
 	}
 
 }

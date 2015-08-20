@@ -1,5 +1,4 @@
 <?php
-namespace Medio;
 /**
  * Inflector for pluralize and singularize English nouns.
  *
