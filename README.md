@@ -5,20 +5,20 @@ I use [Inflector][1] class to capitalize and pluralize the CPT name.
 
 ## <i class="icon-pencil"></i> how to use it
 Make sure to include the source folder in your theme folder. On your functions file ```include_once``` the cpt file.
-```
+```php
 include_once('cpt/src/cpt.php');
 ```
 ###CPT
 #### register
 The example below creates a custom post type called Book.
 
-```
+```php
 $book = new CPT('book');
 $book->add_post_type();
 ```
 #### unregister
 to unregister a custom post type leave only the next two lines and reload your site once, then you can delete these lines also.
-```
+```php
 $book = new CPT('book');
 $book->unregister_post_type();
 ```
@@ -26,7 +26,7 @@ $book->unregister_post_type();
 ```cpt_args_options($options)``` and ```cpt_labes_options($options)``` receive a relational array of options to customize the custom post type declaration. Make sure to define the options before you ```add_post_type```. 
 
 In the example we make the Book custom post type private and change its menu icon.
-```
+```php
 $book->cpt_args_options(array(
      'menu_icon' => 'dashicons-book-alt',
      'public'    => false
