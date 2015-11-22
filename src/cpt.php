@@ -139,7 +139,7 @@ class CPT {
 		
 	}
 
-	private function taxonomy_register() {
+	public function taxonomy_register() {
 
 	    $name = $this->tax_name;
 	    $plural = $this->tax_plural;
