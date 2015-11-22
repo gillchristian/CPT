@@ -48,12 +48,12 @@ class CPT {
 	
 	public function add_post_type(){	
 
-		add_action('init', 'custom_post_register'); 
+		add_action('init', array($this, 'custom_post_register' ));
 		$this->custom_post_register();
 		
 	}
 
-	private function custom_post_register() {
+	public function custom_post_register() {
 
 		$name = $this->type;
 		$plural = $this->plural;
@@ -134,7 +134,7 @@ class CPT {
 		$this->tax_plural_title = Inflector::titleize($this->tax_plural);
 		$this->tax_hierarchical = $hierarchical;
 
-		add_action('init', 'taxonomy_register'); 
+		add_action('init', array($this, 'taxonomy_register')); 
 		$this->taxonomy_register();
 		
 	}
