@@ -1,6 +1,6 @@
 # CPT
 
-Helper classes to create Custom Pots Types and Taxon in WordPress. 
+Helper classes to create Custom Pots Types and Taxonomies in WordPress. 
 I use [Inflector][1] class to capitalize and pluralize the CPT name.
 
 ## <i class="icon-pencil"></i> how to use it
@@ -8,7 +8,7 @@ Make sure to include the source folder in your theme folder. On your functions f
 ```php
 include_once('cpt/src/cpt.php');
 ```
-###CPT
+###post types
 
 ####register
 to add a post type use the ```Post_Type``` class. The example below creates a custom post type called Book.
