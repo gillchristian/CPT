@@ -12,7 +12,7 @@
 
 include_once('inflector.php');
 
-class Post_Type {
+class PostType {
 
 	// cpt properties
 	public $name;
@@ -45,7 +45,7 @@ class Post_Type {
 	/**
 	 * Adds the action hook for registering a post type.
 	 */
-	public function register_post_type(){
+	public function register(){
 		add_action('init', array($this, 'new_post_type' ));
 	}
 
@@ -61,11 +61,11 @@ class Post_Type {
 		$args['labels'] = array_merge($args['labels'], $this->labels);
 		$args = array_merge($args, $this->args);
 
-		register_post_type( $this->slug , $args );
+		register( $this->slug , $args );
 	}
 
 	/**
-	 * Unregister
+	 * Unregister post type
 	 */
 	public function unregister(){
 		global $wp_post_types;
@@ -97,7 +97,7 @@ class Post_Type {
  *
  */
 
-class Taxonomy extends Post_Type{
+class Taxonomy extends PostType{
 
 	public $hierarchical;
 	public $post_types;
@@ -108,7 +108,7 @@ class Taxonomy extends Post_Type{
 	 * @param {string|array} post type/s
 	 * @param {boolean} hierarchical
 	 */
-	public function register_taxonomy($post_types, $hierarchical = false){
+	public function register($post_types, $hierarchical = false){
 		$this->post_types = $post_types;
 		$this->hierarchical = $hierarchical;
 		add_action('init', array($this, 'new_taxonomy'));
@@ -118,7 +118,7 @@ class Taxonomy extends Post_Type{
 	 * Generates the $args array and registers the taxonomy
 	 *
 	 * Callback passed to WordPress.
-	 * By default is created not hierarchical, you can change that by passing true to $this->register_taxonomy.
+	 * By default is created not hierarchical, you can change that by passing true to $this->register().
 	 */
 	public function new_taxonomy() {
 
@@ -129,7 +129,7 @@ class Taxonomy extends Post_Type{
 		$args['labels'] = array_merge($args['labels'], $this->labels);
 		$args = array_merge($args, $this->args);
 
-    register_taxonomy( $this->slug, $this->post_types, $args );
+    register( $this->slug, $this->post_types, $args );
 	}
 
 }
@@ -187,7 +187,7 @@ class cptProvider {
 
 		$args = array(
 			'labels'             => $labels,
-			'description'        => __( $name.' post type.', $domain ),
+			'description'        => sprintf( _x( '%s post type.', 'description', $domain ), $name ),
 			'public'             => true,
 			'publicly_queryable' => true,
 			'show_ui'            => true,
