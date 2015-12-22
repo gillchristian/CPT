@@ -6,6 +6,8 @@
 *
 * @author Christian Gill
 * @license GNU Lesser General Public License
+* @since 0.0.1
+* @version 0.2.0
 */
 
 include_once('inflector.php');
@@ -13,10 +15,12 @@ include_once('inflector.php');
 class Post_Type {
 
 	// cpt properties
-	public $slug;
- 	public $plural;
+	public $name;
+	public $plural;
 	public $title;
 	public $plural_title;
+
+	public $slug;
 
 	// arrays properties for custom post type options
 	public $args = array();
@@ -25,16 +29,17 @@ class Post_Type {
 	/**
 	 * Constructor
 	 *
-	 * @param {string: $slug}
+	 * @param {string} singular name
 	 */
 
-	function __construct($slug){
+	function __construct($name){
 
-		$this->slug = $slug;
-		$this->plural = Inflector::pluralize($slug);
-		$this->title = Inflector::titleize($slug);
+		$this->name = $name;
+		$this->plural = Inflector::pluralize($name);
+		$this->title = Inflector::titleize($name);
 		$this->plural_title = Inflector::titleize($this->plural);
-		//die($this->plural_title);
+
+		$this->slug = Inflector::underscore($name);
 	}
 
 	/**
@@ -51,7 +56,7 @@ class Post_Type {
 	 * By default is created not hierarchical, you can do $this->set_args to change it to hierarchical.
 	 */
 	public function new_post_type() {
-		$args = cptProvider::cpt_args($this->slug, $this->plural, $this->title, $this->plural_title);
+		$args = cptProvider::cpt_args($this->slug, $this->name, $this->plural, $this->title, $this->plural_title);
 
 		$args['labels'] = array_merge($args['labels'], $this->labels);
 		$args = array_merge($args, $this->args);
@@ -60,7 +65,7 @@ class Post_Type {
 	}
 
 	/**
-	 * Unregisters a Post Type
+	 * Unregister
 	 */
 	public function unregister(){
 		global $wp_post_types;
@@ -69,6 +74,7 @@ class Post_Type {
 
 	/**
 	 * Set $args
+	 *
 	 * @param {$options: array}
 	 */
 	public function set_args ($options) {
@@ -77,10 +83,11 @@ class Post_Type {
 
 	/**
 	 * Set $labels
-	 * @param {$options: array}
+	 *
+	 * @param {$labels} labels
 	 */
-	public function set_labels ($options) {
-		$this->labels = $options;
+	public function set_labels ($labels) {
+		$this->labels = $labels;
 	}
 
 }
@@ -98,8 +105,8 @@ class Taxonomy extends Post_Type{
 	/**
 	 * Adds the action hook for registering a Taxonomy.
 	 *
-	 * @param {string|array: $post_types} the post types to bind the taxonomy to.
-	 * @param {boolean: $hierarchical = false} determinates whether the taxonomy is hierarchical or not.
+	 * @param {string|array} post type/s
+	 * @param {boolean} hierarchical
 	 */
 	public function register_taxonomy($post_types, $hierarchical = false){
 		$this->post_types = $post_types;
@@ -116,8 +123,8 @@ class Taxonomy extends Post_Type{
 	public function new_taxonomy() {
 
 		$args = $this->hierarchical ?
-							cptProvider::category_args($this->slug, $this->plural, $this->title, $this->plural_title) :
-							cptProvider::tag_args($this->slug, $this->plural, $this->title, $this->plural_title);
+							cptProvider::category_args($this->slug, $this->name, $this->plural, $this->title, $this->plural_title) :
+							cptProvider::tag_args($this->slug, $this->name, $this->plural, $this->title, $this->plural_title);
 
 		$args['labels'] = array_merge($args['labels'], $this->labels);
 		$args = array_merge($args, $this->args);
@@ -135,36 +142,52 @@ class Taxonomy extends Post_Type{
 class cptProvider {
 
 	/**
+	 * Getter for the WP Theme Text Domain
+	 *
+	 * @access public
+	 * @static
+	 * @return {string} Actual theme text domain
+	 */
+	static function getTextDomain(){
+		return wp_get_theme()->get('TextDomain ');
+	}
+
+	/**
 	 * Custom Post Type arguments
 	 *
-	 * @param {string: $slug} Slug of the CPT
-	 * @param {string: $plural_slug} Plural slug
-	 * @param {string: $name} Name of the  CPT
-	 * @param {string: $plural_slug} Plural Name
+	 * @access public
+	 * @static
+	 * @param {string} slug
+	 * @param {string} singular name
+	 * @param {string} plural name
+	 * @param {string} capitalized name
+	 * @param {string} capitalized plural name
 	 *
-	 * @return {array: $args} default $args with the injected parameters
+	 * @return {array} default $args with the injected parameters
 	 */
-	static function cpt_args($slug, $plural_slug, $name, $plural_name) {
+	static function cpt_args($slug, $singular, $plural, $name, $plural_name) {
+		$domain = self::getTextDomain();
+
 		$labels = array(
-			'name'               => _x( $plural_name, 'post type general name', 'your-plugin-textdomain' ),
-			'singular_name'      => _x( $name, 'post type singular name', 'your-plugin-textdomain' ),
-			'menu_name'          => _x( $plural_name, 'admin menu', 'your-plugin-textdomain' ),
-			'name_admin_bar'     => _x( $name, 'add new on admin bar', 'your-plugin-textdomain' ),
-			'add_new'            => _x( 'Add New', $slug, 'your-plugin-textdomain' ),
-			'add_new_item'       => __( 'Add New '.$name, 'your-plugin-textdomain' ),
-			'new_item'           => __( 'New '.$name, 'your-plugin-textdomain' ),
-			'edit_item'          => __( 'Edit '.$name, 'your-plugin-textdomain' ),
-			'view_item'          => __( 'View '.$name, 'your-plugin-textdomain' ),
-			'all_items'          => __( 'All '.$plural_slug, 'your-plugin-textdomain' ),
-			'search_items'       => __( 'Search '.$plural_slug, 'your-plugin-textdomain' ),
-			'parent_item_colon'  => __( 'Parent '.$plural_slug.':', 'your-plugin-textdomain' ),
-			'not_found'          => __( 'No '.$plural_name.' found.', 'your-plugin-textdomain' ),
-			'not_found_in_trash' => __( 'No '.$plural_name.' found in Trash.', 'your-plugin-textdomain' )
+			'name'               => sprintf( _x( '%s', 'post type general name', $domain ), $plural_name ),
+			'singular_name'      => sprintf( _x( '%s', 'post type singular name', $domain ), $name ),
+			'menu_name'          => sprintf( _x( '%s', 'admin menu name', $domain ), $plural_name ),
+			'name_admin_bar'     => sprintf( _x( '%s', 'add new on admin bar', $domain ), $name ),
+			'add_new'            => _x( 'Add New', 'add new menu option', $domain ),
+			'add_new_item'       => sprintf( _x( 'Add New %s', 'add new single view', $domain ), $name ),
+			'new_item'           => sprintf( __( 'New %s', $domain ), $name ),
+			'edit_item'          => sprintf( __( 'Edit %s', $domain ), $name ),
+			'view_item'          => sprintf( __( 'View %s', $domain ), $name ),
+			'all_items'          => sprintf( __( 'All %s', $domain ), $plural ),
+			'search_items'       => sprintf( __( 'Search %s', $domain ), $plural ),
+			'parent_item_colon'  => sprintf( __( 'Parent %s:', $domain ), $plural ),
+			'not_found'          => sprintf( __( 'No %s found.', $domain ), $plural_name ),
+			'not_found_in_trash' => sprintf( __( 'No %s found in Trash.', $domain ), $plural_name )
 		);
 
 		$args = array(
 			'labels'             => $labels,
-			'description'        => __( $name.' post type.', 'your-plugin-textdomain' ),
+			'description'        => __( $name.' post type.', $domain ),
 			'public'             => true,
 			'publicly_queryable' => true,
 			'show_ui'            => true,
@@ -177,34 +200,42 @@ class cptProvider {
 			'menu_position'      => null,
 			'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' )
 		);
-
 		return $args;
 	}
 
 	/**
 	 * Custom Hierarchical Taxonomy Arguments
 	 *
-	 * @param {string: $slug} Slug of the Taxonomy
-	 * @param {string: $plural_slug} Plural slug
-	 * @param {string: $name} Name of the  Taxonomy
-	 * @param {string: $plural_slug} Plural Name
+	 * @access public
+	 * @static
+	 * @param {string} slug
+	 * @param {string} singular name
+	 * @param {string} plural name
+	 * @param {string} capitalized name
+	 * @param {string} capitalized plural name
 	 *
-	 * @return {array: $args} default $args with the injected parameters
+	 * @return {array} default $args with the injected parameters
 	 */
 
-	static function category_args($slug, $plural_slug, $name, $plural_name){
+	static function category_args($slug, $singular, $plural_slug, $name, $plural_name){
+		$domain = self::getTextDomain();
+
 		$labels = array(
-			'name'              => _x( $plural_name, 'taxonomy general name' ),
-			'singular_name'     => _x( $name, 'taxonomy singular name' ),
-			'search_items'      => __( 'Search '.$plural_name ),
-			'all_items'         => __( 'All '.$plural_name ),
-			'parent_item'       => __( 'Parent '.$name ),
-			'parent_item_colon' => __( 'Parent '.$name.':' ),
-			'edit_item'         => __( 'Edit '.$name ),
-			'update_item'       => __( 'Update '.$name ),
-			'add_new_item'      => __( 'Add New '.$name ),
-			'new_item_name'     => __( 'New '.$name.' Name' ),
-			'menu_name'         => __( $name ),
+			'name'              			=> sprintf( _x( '%s', 'taxonomy general name', $domain ), $plural_name ),
+			'singular_name'           => sprintf( _x( '%s', 'taxonomy singular name', $domain ), $name ),
+			'search_items'            => sprintf( __( 'Search %s', $domain ) , $plural_name ),
+			'popular_items'           => sprintf( __( 'Popular %s', $domain ), $plural_name ),
+			'all_items'               => sprintf( __( 'All %s', $domain ), $plural_name ),
+			'parent_item'       			=> sprintf( __( 'Parent %s', $domain ), $name ),
+			'parent_item_colon' 			=> sprintf( __( 'Parent %s:', $domain ), $name),
+			'edit_item'               => sprintf( __( 'Edit %s', $domain ), $name ),
+			'update_item'             => sprintf( __( 'Update %s', $domain ), $name ),
+			'add_new_item'            => sprintf( __( 'Add New %s', $domain ), $name ),
+			'new_item_name'           => sprintf( __( 'New %s Name', $domain ), $name ),
+			'add_or_remove_items'     => sprintf( __( 'Add or remove %s', $domain ), $plural ),
+			'choose_from_most_used' 	=> sprintf( __( 'Choose from the most used %s', $domain ), $plural ),
+			'not_found'               => sprintf( __( 'No %s found.', $domain ), $plural ),
+			'menu_name'               => sprintf( _x( '%s', 'menu name', $domain ), $plural_name ),
 		);
 
 		$args = array(
@@ -215,39 +246,43 @@ class cptProvider {
 			'query_var'         => true,
 			'rewrite'           => array( 'slug' => $slug ),
 		);
-
 		return $args;
 	}
 
 	/**
 	 * Custom Not Hierarchical Taxonomy Arguments
 	 *
-	 * @param {string: $slug} Slug of the Taxonomy
-	 * @param {string: $plural_slug} Plural slug
-	 * @param {string: $name} Name of the  Taxonomy
-	 * @param {string: $plural_slug} Plural Name
+	 * @access public
+	 * @static
+	 * @param {string} slug
+	 * @param {string} singular name
+	 * @param {string} plural name
+	 * @param {string} capitalized name
+	 * @param {string} capitalized plural name
 	 *
-	 * @return {array: $args} default $args with the injected parameters
+	 * @return {array} default $args with the injected parameters
 	 */
 
-	static function tag_args($slug, $plural_slug, $name, $plural_name){
+	static function tag_args($slug, $singular, $plural, $name, $plural_name){
+		$domain = self::getTextDomain();
+
 		$labels = array(
-			'name'                       => _x( $plural_name, 'taxonomy general name' ),
-			'singular_name'              => _x( $name, 'taxonomy singular name' ),
-			'search_items'               => __( 'Search '.$plural_name ),
-			'popular_items'              => __( 'Popular '.$plural_name ),
-			'all_items'                  => __( 'All '.$plural_name ),
+			'name'                       => sprintf( _x( '%s', 'taxonomy general name', $domain ), $plural_name ),
+			'singular_name'              => sprintf( _x( '%s', 'taxonomy singular name', $domain ), $name ),
+			'search_items'               => sprintf( __( 'Search %s', $domain ) , $plural_name ),
+			'popular_items'              => sprintf( __( 'Popular %s', $domain ), $plural_name ),
+			'all_items'                  => sprintf( __( 'All %s', $domain ), $plural_name ),
 			'parent_item'                => null,
 			'parent_item_colon'          => null,
-			'edit_item'                  => __( 'Edit '.$name ),
-			'update_item'                => __( 'Update '.$name ),
-			'add_new_item'               => __( 'Add New '.$name ),
-			'new_item_name'              => __( 'New '.$name.' Name' ),
-			'separate_items_with_commas' => __( 'Separate '.$plural_slug.' with commas' ),
-			'add_or_remove_items'        => __( 'Add or remove '.$plural_slug ),
-			'choose_from_most_used'      => __( 'Choose from the most used '.$plural_slug ),
-			'not_found'                  => __( 'No '.$plural_slug.' found.' ),
-			'menu_name'                  => __( $plural_name ),
+			'edit_item'                  => sprintf( __( 'Edit %s', $domain ), $name ),
+			'update_item'                => sprintf( __( 'Update %s', $domain ), $name ),
+			'add_new_item'               => sprintf( __( 'Add New %s', $domain ), $name ),
+			'new_item_name'              => sprintf( __( 'New %s Name', $domain ), $name ),
+			'separate_items_with_commas' => sprintf( __( 'Separate %s with commas', $domain ), $plural ),
+			'add_or_remove_items'        => sprintf( __( 'Add or remove %s', $domain ), $plural ),
+			'choose_from_most_used'      => sprintf( __( 'Choose from the most used %s', $domain ), $plural ),
+			'not_found'                  => sprintf( __( 'No %s found.', $domain ), $plural ),
+			'menu_name'                  => sprintf( _x( '%s', 'menu name', $domain ), $plural_name ),
 		);
 
 		$args = array(
@@ -259,7 +294,6 @@ class cptProvider {
 			'query_var'             => true,
 			'rewrite'               => array( 'slug' => $slug ),
 		);
-
 		return $args;
 	}
 }
