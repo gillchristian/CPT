@@ -7,7 +7,7 @@ I use [Inflector][1] class to capitalize and pluralize the CPT name.
 ## <i class="icon-pencil"></i> how to use it
 Make sure to include the source folder in your theme's folder. On your functions file `include_once` the cpt file.
 ```php
-include_once('cpt/src/cpt.php');
+include_once 'cpt/src/cpt.php';
 ```
 ##post types
 
@@ -60,6 +60,8 @@ $genre->register_taxonomy('book', true);
 `set_args($options)` and `set_labels($options)` work the same as the custom post type options setters.
 
 You can find more information about registering taxonomies [here][5].
+
+Also check the other examples on the _examples_ folder.
 
 ##to-do
 
