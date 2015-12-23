@@ -16,12 +16,12 @@ To add a post type use the `PostType` class. The example below creates a custom 
 
 ```php
 $book = new PostType('book');
-$book->register_post_type();
+$book->register();
 ```
 
 ###unregister
 ```php
-$book->unregister_post_type();
+$book->unregister();
 ```
 
 ###adding more options
@@ -49,11 +49,11 @@ To add a taxonomy use the `Taxonomy` class. The example below creates a Writer t
 ```php
 $writer = new Taxonomy('writer');
 
-$writer->register_taxonomy('book');
+$writer->register('book');
 
 $genre = new Taxonomy('genre');
 
-$genre->register_taxonomy('book', true);
+$genre->register('book', true);
 ```
 
 ###adding more options
