@@ -30,12 +30,13 @@ class PostType {
 	 * Constructor
 	 *
 	 * @param {string} singular name
+	 * @param {string} plural name
 	 */
 
-	function __construct($name){
+	function __construct($name, $plural = false){
 
 		$this->name = $name;
-		$this->plural = Inflector::pluralize($name);
+		$this->plural = $plural ? ucfirst($plural) : Inflector::pluralize($name);
 		$this->title = Inflector::titleize($name);
 		$this->plural_title = Inflector::titleize($this->plural);
 
@@ -53,7 +54,7 @@ class PostType {
 	 * Generates the $args array and registers the post type
 	 *
 	 * Callback passed to WordPress.
-	 * By default is created not hierarchical, you can do $this->set_args to change it to hierarchical.
+	 * By default is created not hierarchical, you can do $this->setArgs to change it to hierarchical.
 	 */
 	public function new_post_type() {
 		$args = cptProvider::cpt_args($this->slug, $this->name, $this->plural, $this->title, $this->plural_title);
@@ -77,7 +78,7 @@ class PostType {
 	 *
 	 * @param {$options: array}
 	 */
-	public function set_args ($options) {
+	public function setArgs ($options) {
 		$this->args = $options;
 	}
 
@@ -86,7 +87,7 @@ class PostType {
 	 *
 	 * @param {$labels} labels
 	 */
-	public function set_labels ($labels) {
+	public function setLabels ($labels) {
 		$this->labels = $labels;
 	}
 
