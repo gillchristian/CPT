@@ -5,7 +5,7 @@ Helper classes to create Custom Pots Types and Taxonomies in WordPress.
 I use [Inflector][1] class to capitalize and pluralize the CPT name.
 
 ## <i class="icon-pencil"></i> how to use it
-Make sure to include the source folder in your theme's folder. On your functions file `include_once` the cpt file.
+Make sure to include the source folder in your theme's folder. On your functions file `include_once` or `require_once` the `cpt.inc.php` file, it will load all the required files.
 ```php
 include_once 'cpt/src/cpt.php';
 ```
@@ -65,6 +65,7 @@ Also check the other examples on the _examples_ folder.
 
 ##to-do
 
+- Make it Autoload ready.
 - Change to a different inflector and support pluralization for other languages. [ICanBoogie/Inflector](6)
 - Add testing.
 
@@ -74,7 +75,7 @@ Also check the other examples on the _examples_ folder.
 
 ##contributing
 
-Feel free to submit issues, pull requests, or suggestions. 
+Feel free to submit issues, pull requests, or suggestions.
 
 You can also so reach me on twitter ([@gillchristian](7)) if you like it and/or are using it :smile:
 
