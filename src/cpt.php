@@ -14,62 +14,109 @@ include_once('inflector.php');
 
 class PostType {
 
-	// cpt properties
+	/**
+   * CPT Name
+   *
+   * @var string
+   * @access public
+   */
 	public $name;
-	public $plural;
-	public $title;
-	public $plural_title;
 
+	/**
+	 * CPT Plural Name
+	 *
+	 * @var string
+	 * @access public
+	 */
+	public $plural;
+
+	/**
+	 * CPT Uppercased Name
+	 *
+	 * @var string
+	 * @access public
+	 */
+	public $title;
+
+	/**
+	 * CPT Uppercased Plural Name
+	 *
+	 * @var string
+	 * @access public
+	 */
+	public $pluralTitle;
+
+	/**
+   * CPT Slug
+   *
+   * @var string
+   * @access public
+   */
 	public $slug;
 
-	// arrays properties for custom post type options
+	/**
+	 * Holds the Arguments the CPT is registered with
+	 *
+	 * @var array
+	 * @access public
+	 */
 	public $args = array();
+
+	/**
+	 * Holds the Labels the CPT is registered with
+	 *
+	 * @var array
+	 * @access public
+	 */
 	public $labels = array();
 
 	/**
 	 * Constructor
 	 *
 	 * @param {string} singular name
+	 * @param {string} plural name
+	 * @param {string} CPT slug
 	 */
 
-	function __construct($name){
+	function __construct($name, $plural = false, $slug = false){
 
 		$this->name = $name;
-		$this->plural = Inflector::pluralize($name);
+		$this->plural = $plural ? $plural : Inflector::pluralize($name);
 		$this->title = Inflector::titleize($name);
-		$this->plural_title = Inflector::titleize($this->plural);
+		$this->pluralTitle = Inflector::titleize($this->plural);
 
-		$this->slug = Inflector::underscore($name);
+		$this->slug = $slug ? $slug : Inflector::underscore($name);
 	}
 
 	/**
 	 * Adds the action hook for registering a post type.
+	 *
+	 * By default is created not hierarchical, you can change that by
+	 * by calling {PostType object}->setArgs( array('hierarchical' => false,) ).
 	 */
 	public function register(){
-		add_action('init', array($this, 'new_post_type' ));
+		add_action('init', array($this, 'newPostType' ));
 	}
 
 	/**
 	 * Generates the $args array and registers the post type
 	 *
 	 * Callback passed to WordPress.
-	 * By default is created not hierarchical, you can do $this->setArgs to change it to hierarchical.
+	 * DO NOT EXECUTE THIS METHOD!
 	 */
-	public function new_post_type() {
-		$args = cptProvider::cpt_args($this->slug, $this->name, $this->plural, $this->title, $this->plural_title);
+	public function newPostType() {
+		$args = CptProvider::postArgs($this->slug, $this->name, $this->plural, $this->title, $this->pluralTitle);
 
-		$args['labels'] = array_merge($args['labels'], $this->labels);
-		$args = array_merge($args, $this->args);
-
-		register_post_type( $this->slug , $args );
+		register_post_type( $this->slug , $this->mergeArgs($args) );
 	}
 
 	/**
-	 * Unregister post type
+	 * Unregister the CPT
 	 */
 	public function unregister(){
 		global $wp_post_types;
-		if ( isset( $wp_post_types[ $this->slug ] ) ) unset( $wp_post_types[ $this->slug ] );
+		if ( isset( $wp_post_types[ $this->slug ] ) )
+			unset( $wp_post_types[ $this->slug ] );
 	}
 
 	/**
@@ -90,6 +137,18 @@ class PostType {
 		$this->labels = $labels;
 	}
 
+	/**
+	 * Merge default parameters with the custom ones
+	 *
+	 * @return {array} mixed parameters and labesl for the registration
+	 */
+	public function mergeArgs( $args ){
+		$args['labels'] = array_merge($args['labels'], $this->labels);
+		$args = array_merge($args, $this->args);
+
+		return $args;
+	}
+
 }
 
 /**
@@ -99,37 +158,49 @@ class PostType {
 
 class Taxonomy extends PostType{
 
+	/**
+	 * Whether or not the Taxonomy is created hierarchical
+	 *
+	 * @var bool
+	 * @access public
+	 */
 	public $hierarchical;
-	public $post_types;
+
+	/**
+	 * The post types the Taxonomy is registered to
+	 *
+	 * @var string|array
+	 * @access public
+	 */
+	public $postTypes;
 
 	/**
 	 * Adds the action hook for registering a Taxonomy.
 	 *
-	 * @param {string|array} post type/s
+	 * By default is created not hierarchical, you can change that by
+	 * passing true on the second argument to $this->register.
+	 *
+	 * @param {string|array} post type/s to register the Taxonomy to
 	 * @param {boolean} hierarchical
 	 */
-	public function register($post_types, $hierarchical = false){
-		$this->post_types = $post_types;
+	public function register($postTypes, $hierarchical = false){
+		$this->postTypes = $postTypes;
 		$this->hierarchical = $hierarchical;
-		add_action('init', array($this, 'new_taxonomy'));
+		add_action('init', array($this, 'newTaxonomy'));
 	}
 
 	/**
 	 * Generates the $args array and registers the taxonomy
 	 *
 	 * Callback passed to WordPress.
-	 * By default is created not hierarchical, you can change that by passing true to $this->register.
+	 * DO NOT EXECUTE THIS METHOD!
 	 */
-	public function new_taxonomy() {
-
+	public function newTaxonomy() {
 		$args = $this->hierarchical ?
-							cptProvider::category_args($this->slug, $this->name, $this->plural, $this->title, $this->plural_title) :
-							cptProvider::tag_args($this->slug, $this->name, $this->plural, $this->title, $this->plural_title);
+							CptProvider::categoryArgs($this->slug, $this->name, $this->plural, $this->title, $this->pluralTitle) :
+							CptProvider::tagArgs($this->slug, $this->name, $this->plural, $this->title, $this->pluralTitle);
 
-		$args['labels'] = array_merge($args['labels'], $this->labels);
-		$args = array_merge($args, $this->args);
-
-    register_taxonomy( $this->slug, $this->post_types, $args );
+    register_taxonomy( $this->slug, $this->postTypes, $this->mergeArgs($args) );
 	}
 
 }
@@ -139,7 +210,7 @@ class Taxonomy extends PostType{
  *
  * Methods return the defaults CPT and Taxonomies $args arrays
  */
-class cptProvider {
+class CptProvider {
 
 	/**
 	 * Getter for the WP Theme Text Domain
@@ -165,13 +236,13 @@ class cptProvider {
 	 *
 	 * @return {array} default $args with the injected parameters
 	 */
-	static function cpt_args($slug, $singular, $plural, $name, $plural_name) {
+	static function postArgs($slug, $singular, $plural, $name, $pluralName) {
 		$domain = self::getTextDomain();
 
 		$labels = array(
-			'name'               => sprintf( _x( '%s', 'post type general name', $domain ), $plural_name ),
+			'name'               => sprintf( _x( '%s', 'post type general name', $domain ), $pluralName ),
 			'singular_name'      => sprintf( _x( '%s', 'post type singular name', $domain ), $name ),
-			'menu_name'          => sprintf( _x( '%s', 'admin menu name', $domain ), $plural_name ),
+			'menu_name'          => sprintf( _x( '%s', 'admin menu name', $domain ), $pluralName ),
 			'name_admin_bar'     => sprintf( _x( '%s', 'add new on admin bar', $domain ), $name ),
 			'add_new'            => _x( 'Add New', 'add new menu option', $domain ),
 			'add_new_item'       => sprintf( _x( 'Add New %s', 'add new single view', $domain ), $name ),
@@ -181,8 +252,8 @@ class cptProvider {
 			'all_items'          => sprintf( __( 'All %s', $domain ), $plural ),
 			'search_items'       => sprintf( __( 'Search %s', $domain ), $plural ),
 			'parent_item_colon'  => sprintf( __( 'Parent %s:', $domain ), $plural ),
-			'not_found'          => sprintf( __( 'No %s found.', $domain ), $plural_name ),
-			'not_found_in_trash' => sprintf( __( 'No %s found in Trash.', $domain ), $plural_name )
+			'not_found'          => sprintf( __( 'No %s found.', $domain ), $pluralName ),
+			'not_found_in_trash' => sprintf( __( 'No %s found in Trash.', $domain ), $pluralName )
 		);
 
 		$args = array(
@@ -217,15 +288,15 @@ class cptProvider {
 	 * @return {array} default $args with the injected parameters
 	 */
 
-	static function category_args($slug, $singular, $plural_slug, $name, $plural_name){
+	static function categoryArgs($slug, $singular, $plural_slug, $name, $pluralName){
 		$domain = self::getTextDomain();
 
 		$labels = array(
-			'name'              			=> sprintf( _x( '%s', 'taxonomy general name', $domain ), $plural_name ),
+			'name'              			=> sprintf( _x( '%s', 'taxonomy general name', $domain ), $pluralName ),
 			'singular_name'           => sprintf( _x( '%s', 'taxonomy singular name', $domain ), $name ),
-			'search_items'            => sprintf( __( 'Search %s', $domain ) , $plural_name ),
-			'popular_items'           => sprintf( __( 'Popular %s', $domain ), $plural_name ),
-			'all_items'               => sprintf( __( 'All %s', $domain ), $plural_name ),
+			'search_items'            => sprintf( __( 'Search %s', $domain ) , $pluralName ),
+			'popular_items'           => sprintf( __( 'Popular %s', $domain ), $pluralName ),
+			'all_items'               => sprintf( __( 'All %s', $domain ), $pluralName ),
 			'parent_item'       			=> sprintf( __( 'Parent %s', $domain ), $name ),
 			'parent_item_colon' 			=> sprintf( __( 'Parent %s:', $domain ), $name),
 			'edit_item'               => sprintf( __( 'Edit %s', $domain ), $name ),
@@ -235,7 +306,7 @@ class cptProvider {
 			'add_or_remove_items'     => sprintf( __( 'Add or remove %s', $domain ), $plural ),
 			'choose_from_most_used' 	=> sprintf( __( 'Choose from the most used %s', $domain ), $plural ),
 			'not_found'               => sprintf( __( 'No %s found.', $domain ), $plural ),
-			'menu_name'               => sprintf( _x( '%s', 'menu name', $domain ), $plural_name ),
+			'menu_name'               => sprintf( _x( '%s', 'menu name', $domain ), $pluralName ),
 		);
 
 		$args = array(
@@ -263,15 +334,15 @@ class cptProvider {
 	 * @return {array} default $args with the injected parameters
 	 */
 
-	static function tag_args($slug, $singular, $plural, $name, $plural_name){
+	static function tagArgs($slug, $singular, $plural, $name, $pluralName){
 		$domain = self::getTextDomain();
 
 		$labels = array(
-			'name'                       => sprintf( _x( '%s', 'taxonomy general name', $domain ), $plural_name ),
+			'name'                       => sprintf( _x( '%s', 'taxonomy general name', $domain ), $pluralName ),
 			'singular_name'              => sprintf( _x( '%s', 'taxonomy singular name', $domain ), $name ),
-			'search_items'               => sprintf( __( 'Search %s', $domain ) , $plural_name ),
-			'popular_items'              => sprintf( __( 'Popular %s', $domain ), $plural_name ),
-			'all_items'                  => sprintf( __( 'All %s', $domain ), $plural_name ),
+			'search_items'               => sprintf( __( 'Search %s', $domain ) , $pluralName ),
+			'popular_items'              => sprintf( __( 'Popular %s', $domain ), $pluralName ),
+			'all_items'                  => sprintf( __( 'All %s', $domain ), $pluralName ),
 			'parent_item'                => null,
 			'parent_item_colon'          => null,
 			'edit_item'                  => sprintf( __( 'Edit %s', $domain ), $name ),
@@ -282,7 +353,7 @@ class cptProvider {
 			'add_or_remove_items'        => sprintf( __( 'Add or remove %s', $domain ), $plural ),
 			'choose_from_most_used'      => sprintf( __( 'Choose from the most used %s', $domain ), $plural ),
 			'not_found'                  => sprintf( __( 'No %s found.', $domain ), $plural ),
-			'menu_name'                  => sprintf( _x( '%s', 'menu name', $domain ), $plural_name ),
+			'menu_name'                  => sprintf( _x( '%s', 'menu name', $domain ), $pluralName ),
 		);
 
 		$args = array(
