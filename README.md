@@ -12,10 +12,10 @@ include_once('cpt/src/cpt.php');
 ##post types
 
 ###register
-To add a post type use the `Post_Type` class. The example below creates a custom post type called Book.
+To add a post type use the `PostType` class. The example below creates a custom post type called Book.
 
 ```php
-$book = new Post_Type('book');
+$book = new PostType('book');
 $book->register_post_type();
 ```
 

@@ -61,7 +61,7 @@ class PostType {
 		$args['labels'] = array_merge($args['labels'], $this->labels);
 		$args = array_merge($args, $this->args);
 
-		register( $this->slug , $args );
+		register_post_type( $this->slug , $args );
 	}
 
 	/**
@@ -118,7 +118,7 @@ class Taxonomy extends PostType{
 	 * Generates the $args array and registers the taxonomy
 	 *
 	 * Callback passed to WordPress.
-	 * By default is created not hierarchical, you can change that by passing true to $this->register().
+	 * By default is created not hierarchical, you can change that by passing true to $this->register.
 	 */
 	public function new_taxonomy() {
 
@@ -129,7 +129,7 @@ class Taxonomy extends PostType{
 		$args['labels'] = array_merge($args['labels'], $this->labels);
 		$args = array_merge($args, $this->args);
 
-    register( $this->slug, $this->post_types, $args );
+    register_taxonomy( $this->slug, $this->post_types, $args );
 	}
 
 }
