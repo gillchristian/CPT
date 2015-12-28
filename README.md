@@ -7,7 +7,7 @@ I use [Inflector][1] class to capitalize and pluralize the CPT name.
 ## <i class="icon-pencil"></i> how to use it
 Make sure to include the source folder in your theme's folder. On your functions file `include_once` or `require_once` the `cpt.inc.php` file, it will load all the required files.
 ```php
-include_once 'cpt/src/cpt.php';
+include_once 'CPT/src/cpt.inc.php';
 ```
 ##post types
 
