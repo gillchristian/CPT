@@ -25,11 +25,11 @@ $book->unregister();
 ```
 
 ###adding more options
-`set_args($options)` and `set_labes($options)` receive a relational array of options to customize the custom post type declaration.
+`setArgs($options)` and `setLabels($options)` receive a relational array of options to customize the custom post type declaration.
 
 In the example we make the Book custom post type private and change its menu icon.
 ```php
-$book->set_args(array(
+$book->setArgs(array(
      'menu_icon' => 'dashicons-book-alt',
      'public'    => false
     ));
@@ -53,11 +53,11 @@ $writer->register('book');
 
 $genre = new Taxonomy('genre');
 
-$genre->register('book', true);
+$genre->register('book', true); // set 2nd parameter to true to make the taxonomy hierarchical
 ```
 
 ###adding more options
-`set_args($options)` and `set_labels($options)` work the same as the custom post type options setters.
+`setArgs($options)` and `setLabels($options)` work the same as the custom post type options setters.
 
 You can find more information about registering taxonomies [here][5].
 
