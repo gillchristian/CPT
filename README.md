@@ -1,5 +1,7 @@
 # CPT
 
+[![PRs Welcome](https://img.shields.io/badge/prs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+
 Helper classes to create Custom Pots Types and Taxonomies in WordPress.
 
 I use [Inflector][1] class to capitalize and pluralize the CPT name.
