@@ -1,6 +1,4 @@
-# CPT
-
-[![PRs Welcome](https://img.shields.io/badge/prs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+# CPT [![PRs Welcome](https://img.shields.io/badge/prs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 Helper classes to create Custom Pots Types and Taxonomies in WordPress.
 
@@ -76,6 +74,8 @@ Also check the other examples on the _examples_ folder.
 - Add support for internationalization.
 
 ##contributing
+
+**Working on your first Pull Request?** You can learn how from this *free* series [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github)
 
 Feel free to submit issues, pull requests, or suggestions.
 
